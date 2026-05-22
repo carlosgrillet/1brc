@@ -67,3 +67,27 @@ func makeCalculation(city string, temp float64) {
 
 	(*currentValues)[AVG] = ((*currentValues)[AVG] + temp) / (*currentValues)[COUNT]
 }
+
+func findHalves(file *os.File) (int64, int64) {
+	var offset int64
+
+	fileStat, err := file.Stat()
+	if err != nil {
+		fmt.Printf("could not stat file. %v", err)
+		os.Exit(1)
+	}
+
+	halfFile := fileStat.Size() / 2
+	file.Seek(halfFile, 1)
+
+	for {
+		char := make([]byte, 1)
+		file.Read(char)
+		offset += 1
+		if char[0] == byte('\n') {
+			break
+		}
+	}
+	half := halfFile + offset
+	return half + int64(1), half - int64(1)
+}
