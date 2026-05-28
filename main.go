@@ -80,14 +80,17 @@ func findHalves(file *os.File) (int64, int64) {
 	halfFile := fileStat.Size() / 2
 	file.Seek(halfFile, 1)
 
+// offsetTillNewLine will advance the file pointer and return the ammount of
+// bytes scanned till it find a new line character
+func offsetTillNewLine(file *os.File) int {
+	currentChar := make([]byte, 1)
+	var offset int
 	for {
-		char := make([]byte, 1)
-		file.Read(char)
-		offset += 1
-		if char[0] == byte('\n') {
-			break
+		if file.Read(currentChar); currentChar[0] != '\n' {
+			offset += 1
+			continue
 		}
+		break
 	}
-	half := halfFile + offset
-	return half + int64(1), half - int64(1)
+	return offset
 }
