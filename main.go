@@ -109,7 +109,8 @@ func offsetTillNewLine(file *os.File) int {
 	currentChar := make([]byte, 1)
 	var offset int
 	for {
-		if file.Read(currentChar); currentChar[0] != '\n' {
+		file.Read(currentChar)
+		if currentChar[0] != '\n' {
 			offset += 1
 			continue
 		}
