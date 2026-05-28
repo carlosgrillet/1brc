@@ -76,9 +76,32 @@ func findHalves(file *os.File) (int64, int64) {
 		fmt.Printf("could not stat file. %v", err)
 		os.Exit(1)
 	}
+}
 
-	halfFile := fileStat.Size() / 2
-	file.Seek(halfFile, 1)
+// setReaderChunk will return the start point and bytes to read
+// for a worker
+func setReaderChunk(id int, size int64, file *os.File) (int, int) {
+	chunk := int(size / int64(*workers))
+	startPoint := id * chunk
+
+	file.Seek(int64(startPoint), 0)
+
+	if id != 0 {
+		startPoint += offsetTillNewLine(file) + 1
+	}
+
+
+	if id == *workers-1 {
+		chunk = int(size) - startPoint
+		return startPoint, chunk
+	}
+
+	file.Seek(int64(id+1)*int64(chunk), 0)
+
+	chunk = (id+1)*chunk + offsetTillNewLine(file) - startPoint
+
+	return startPoint, chunk
+}
 
 // offsetTillNewLine will advance the file pointer and return the ammount of
 // bytes scanned till it find a new line character
